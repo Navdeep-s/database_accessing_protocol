@@ -1,5 +1,6 @@
-import sys
-
+import sys,random
+import socket
+import encrypter as enc
 
 NAME = 1
 EMAIL = 2
@@ -54,13 +55,14 @@ def universal_decoder(arr,definiton):
 
 
 
-import socket
 
 
 
 def create_message(query_type,response_type,value):
 	global message_id 
-	message_id = 45
+
+	#generating random id
+	message_id = random.randint(0,429496729)
 	bytes_to_send = message_id.to_bytes(4, byteorder='big')
 	bytes_to_send = bytes_to_send+query_type.to_bytes(1, byteorder='big')
 	bytes_to_send = bytes_to_send+response_type.to_bytes(1, byteorder='big')
@@ -70,27 +72,11 @@ def create_message(query_type,response_type,value):
 
 
 
-def decode_response(arr):
-	id_bytes = arr[0:4]
-	fragment_number_bytes = arr[4:5]
-	number_of_answers_bytes = arr[5:6]
-	data_len_bytes = arr[6:10]
-	data_bytes = arr[10:]
-
-
-	message_id =int.from_bytes(id_bytes, byteorder='big') 
-	fragment_number =int.from_bytes(fragment_number_bytes, byteorder='big') 
-	number_of_answers =int.from_bytes(number_of_answers_bytes, byteorder='big') 
-	data_len =int.from_bytes(data_len_bytes, byteorder='big') 
-	data = data_bytes.decode("utf-8")
-
-	print(message_id,fragment_number,number_of_answers,data_len,data)
-
-
-
-
-
 def make_sense(data,response_type):
+	global message_id
+
+	#decryting the data came from server
+	data = enc.decrypt(message_id%91+18,data)
 
 	chunks = data.split("\n\n")
 
@@ -208,8 +194,11 @@ while True:
 			client.sendto(create_message(query_type,response_type,value), serverAddressPort)
 			continue
 
-
-		output = make_sense(data,response_type)
+		try:
+			output = make_sense(data,response_type)
+		except Exception:
+			print("man in the middle detected")
+			break
 		final_output =print_data(output)
 
 		print("Total responses found : {}\n".format(len(final_output)))

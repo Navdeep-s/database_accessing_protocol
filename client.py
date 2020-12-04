@@ -44,7 +44,8 @@ INT = "i"
 STR = "s"
 
 
-#[(4,INT),(1,INT),(1,INT),(0,STR)]
+#example ~ defination = [(4,INT),(1,INT),(1,INT),(0,STR)]
+#arr = bytesarray
 def universal_decoder(arr,definiton):
 	outputs = []
 	counter = 0

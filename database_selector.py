@@ -32,7 +32,7 @@ class manager():
 		return output
 
 
-	# forming the data field of the packet
+	# forming the data field of the packet from the data returned for the search parameter function 
 	def format_data(self, data,response_format):
 
 		stri = ""

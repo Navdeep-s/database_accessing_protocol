@@ -3,6 +3,11 @@ import socket
 import encrypter as enc
 
 
+
+BUFFER_SIZE = 200
+
+
+
 NAME = 1
 EMAIL = 2
 PHONE = 4
@@ -38,6 +43,8 @@ department_mapping = {0:"Chemical Engineering",
 INT = "i"
 STR = "s"
 
+
+#[(4,INT),(1,INT),(1,INT),(0,STR)]
 def universal_decoder(arr,definiton):
 	outputs = []
 	counter = 0
@@ -72,7 +79,7 @@ def create_message(query_type,response_type,value):
 	return bytes_to_send
 
 
-
+#to decode the data coming from server converting it to human reaedable format
 def make_sense(data,response_type):
 	global message_id
 
@@ -85,21 +92,33 @@ def make_sense(data,response_type):
 	if(not "\n\n" in data):
 		raise Exception
 
+
+	#chunks is the list of all the data of person sent from server in server readable format
 	chunks = data.split("\n\n")
 
 
 
+	#it will contian list of dictionary data of each individual 
 	output=[]
 	lis = [1,2,4,8,16,32]
+
+
+	#chunk contains data of one person sent from the server in server readable format
 	for chunk in chunks:
 		if(chunk==""):
 			break
+
+
+		#it contain data for one person in dictionary format
 		dict_out = {}
+
+
 		rows = chunk.split("\n")
 		
 		row_index =0
 		for elem in lis:
 			
+			#now check if the field required were department or blood group then we need to convert it into string because from server we are sending 0 1 2 .. for mapping of blood group and department
 			if(response_type&elem!=0):
 				
 				if(elem==DEPARTMENT):
@@ -123,6 +142,8 @@ def make_sense(data,response_type):
 	return output
 
 
+
+#printing the data converted by make_sense function
 def print_data(lis):
 	output = []
 	for dic_chunk in lis:
@@ -138,18 +159,16 @@ def print_data(lis):
 
 
 
-msgFromClient       = "Hello UDP Server"
-bytesToSend         = str.encode(msgFromClient)
 serverAddressPort   = ("localhost", 20001)
-bufferSize          = 200
 
  
 
 
 response_format = [(4,INT),(1,INT),(1,INT),(0,STR)]
 
-# Create a UDP socket at client side
 
+
+# Create a UDP socket at client side
 client = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
 # Send to server using created UDP socket
@@ -169,7 +188,7 @@ data=""
 total_packet_recieved = 0
 while True:
 	try:
-		msgFromServer = client.recvfrom(1000)
+		msgFromServer = client.recvfrom(BUFFER_SIZE)
 	except Exception:
 		print("Server Down!!")
 		sys.exit()

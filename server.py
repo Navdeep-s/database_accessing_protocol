@@ -59,14 +59,14 @@ BUFFER_SIZE  = 200
 
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
- 
+
 UDPServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR , 1)
+
+# below code does not support windows
+# reuse_port support load balancing
 # UDPServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT , 1)
 
 # Bind to address and ip
-
-
-
 UDPServerSocket.bind((localIP, localPort))
 
 
@@ -98,6 +98,7 @@ def handle_response(message,address):
 #arguments list of packets,adress
 def send_data(lis,addr):
 
+	#creating additional socket for the reply of the request
 	sending_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)	
 	for packet in lis:
 		time.sleep(NETWORK_DELAY)
@@ -168,7 +169,11 @@ while(True):
 		bytesAddressPair = UDPServerSocket.recvfrom(BUFFER_SIZE)
 	except Exception:
 		continue
+		
+	#data 
 	message = bytesAddressPair[0]
+
+	#address and port of the requesting client
 	address = bytesAddressPair[1]
 
 

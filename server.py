@@ -53,11 +53,7 @@ BUFFER_SIZE  = 200
 
  
 
-msgFromServer       = "Hello UDP Client"
 
-bytesToSend         = str.encode(msgFromServer)
-
- 
 
 # Create a datagram socket
 
@@ -104,8 +100,6 @@ def send_data(lis,addr):
 
 	sending_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)	
 	for packet in lis:
-		# print(packet)
-		# print("\n...............................\n")
 		time.sleep(NETWORK_DELAY)
 		sending_socket.sendto(packet, addr)
 
@@ -132,7 +126,8 @@ def create_response(message_id,data):
 	fragment_remiaing_bytes = fragment_remiaing.to_bytes(1, byteorder='big')
 	total_packets_bytes = neighbours.to_bytes(1,byteorder="big")
 
-	data = enc.encrypt(message_id%91+18,data)
+	calculated_key = enc.key_calculator(message_id)
+	data = enc.encrypt(calculated_key,data)
 
 	data_bytes = data.encode('utf-8')
 
@@ -145,7 +140,6 @@ def create_response(message_id,data):
 		end = min(len(data),(k+bufferSize))
 		fragment_remiaing_bytes = fragment_remiaing.to_bytes(1, byteorder='big')
 		lis.append((bytes_to_send+total_packets_bytes+fragment_remiaing_bytes+ data_bytes[k:end]))
-		# print(bytes_to_send,len(lis[-1]),k,end,end-k)
 		fragment_remiaing = fragment_remiaing-1
 
 	if(len(lis)==0):
@@ -158,23 +152,6 @@ def create_response(message_id,data):
 
 
 
-
-
-
-
-
-
-# def decode_message(arr):
-# 	id_bytes = arr[:4]
-# 	query_byte = arr[4:5]
-# 	value_bytes = arr[5:]
-
-# 	message_id = int.from_bytes(id_bytes, byteorder='big')
-# 	query = query_byte.decode("utf-8")
-# 	value  = value_bytes.decode("utf-8")
-
-# 	print(message_id,query,value)
- 
 
 print("UDP server up and listening")
 
@@ -204,14 +181,6 @@ while(True):
 
 	print(clientIP)
 
-
-
-	# Sending a reply to client
-
-	# sending_socket.sendto("got you".encode("utf-8"), address)
-	# UDPServerSocket.sendto("don' got you ".encode("utf-8"),address)
-	# print("hey")
-	# pint("done sedn to ",address)
 	if(threading.active_count()<10):
 		threading.Thread(target=handle_response,name="sending data thread", args=(message,address,)).start()
 	

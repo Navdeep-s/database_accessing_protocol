@@ -2,6 +2,7 @@ import sys,random
 import socket
 import encrypter as enc
 
+
 NAME = 1
 EMAIL = 2
 PHONE = 4
@@ -76,9 +77,17 @@ def make_sense(data,response_type):
 	global message_id
 
 	#decryting the data came from server
-	data = enc.decrypt(message_id%91+18,data)
+
+	calculated_key = enc.key_calculator(message_id)
+	data = enc.decrypt(calculated_key,data)
+
+	#original response data from server always contain \n\n if that is not the case then man in the middle happend
+	if(not "\n\n" in data):
+		raise Exception
 
 	chunks = data.split("\n\n")
+
+
 
 	output=[]
 	lis = [1,2,4,8,16,32]
@@ -153,7 +162,8 @@ query_type= int(sys.argv[2])
 response_type = int(sys.argv[3])
 value = sys.argv[1]
 client.sendto(create_message(query_type,response_type,value), serverAddressPort)
-
+# client.sendto(bytes("ahsdkjflakjsdfhahsd","utf-8"), serverAddressPort)
+# sys.exit()
 
 data=""
 total_packet_recieved = 0

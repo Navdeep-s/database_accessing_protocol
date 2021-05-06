@@ -8,7 +8,7 @@ A UDP protocol designed to fetch data from the database over the network whose t
 
 
 * This program has two verions gui and terminal
-  ##Terminal##
+  ## Terminal ##
   for operating with terminal version refect to "client-server documentation(1).pdf" file
  
   ## GUI ##
